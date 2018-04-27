@@ -64,17 +64,15 @@ DELETE FROM Intermediate;
 
 -- Q1
 WITH A AS (SELECT name, country, ROWID FROM Province),
-B AS (SELECT province AS 'name_id' , SUM(qty) AS 'cnt' FROM Purchases GROUP BY name_id),
+B AS (SELECT province AS 'name_id' , COUNT() AS 'cnt' FROM Purchases GROUP BY name_id),
 S AS (SELECT A.country, SUM(B.cnt) AS 'cnt' FROM A INNER JOIN B ON A.ROWID = B.name_id GROUP BY country)
 
-SELECT Country.name, S.cnt FROM S INNER JOIN Country ON Country.code = S.country
-ORDER  BY cnt DESC LIMIT 10;
+
+SELECT Country.name, S.cnt FROM S INNER JOIN Country ON Country.code = S.country WHERE cnt >= (SELECT MIN(cnt) FROM (SELECT S.cnt AS cnt FROM S INNER JOIN Country ON Country.code = S.country ORDER BY S.cnt DESC LIMIT 10)) ORDER  BY cnt DESC;
 
 
 -- Q2
-SELECT * FROM TotPurByProd;
-SELECT product, SUM(qty) AS 'cnt' FROM Purchases GROUP BY product;
-
+SELECT product, COUNT() AS 'cnt' FROM Purchases GROUP BY product;
 
 -- Q3
 WITH A AS (SELECT name, country, ROWID FROM Province),
@@ -82,8 +80,7 @@ B AS (SELECT province, SUM(qty) AS 'cnt' FROM Purchases WHERE product = 0 GROUP 
 C AS (SELECT country, name AS 'province' , max(cnt) AS 'abs',  CAST(max(cnt) AS float) /CAST(sum(cnt) AS foat) AS 'prop' FROM A INNER JOIN B ON A.ROWID = B.province GROUP BY country),
 D AS (SELECT code, name FROM Country)
 
-SELECT province, name, abs, prop FROM C INNER JOIN D ON D.code = C.country;
-
+SELECT name AS country, province, abs, prop FROM C INNER JOIN D ON D.code = C.country ORDER BY prop DESC;
 
 --Q4
 WITH B AS (SELECT province AS 'province_id', qty, count(qty) AS 'cnt'  FROM Purchases GROUP BY province, qty),
@@ -94,7 +91,6 @@ SELECT continent, qty, SUM(cnt) AS 'cnt' FROM D JOIN C ON C.country = D.country 
 
 
 -- Q5
-SELECT * FROM LastTotPurByProd;
 SELECT product, count(product) FROM Purchases WHERE (time >= date('now','-10 day') AND time <=  date('now')) GROUP BY product;
 
 
@@ -173,8 +169,7 @@ B AS (SELECT province, SUM(qty) AS 'cnt' FROM Purchases WHERE product = 0 GROUP 
 C AS (SELECT country, name AS 'province' , max(cnt) AS 'abs',  CAST(max(cnt) AS float) /CAST(sum(cnt) AS foat) AS 'prop' FROM A INNER JOIN B ON A.ROWID = B.province GROUP BY country),
 D AS (SELECT code, name FROM Country)
 
-SELECT name, province, abs, prop FROM C INNER JOIN D ON D.code = C.country;
-
+SELECT name AS country, province, abs, prop FROM C INNER JOIN D ON D.code = C.country ORDER BY prop DESC;
 
 --Q4
 WITH B AS (SELECT province AS 'province_id', qty, count(qty) AS 'cnt'  FROM Purchases GROUP BY province, qty),
@@ -247,16 +242,15 @@ DELETE FROM Intermediate;
 
 -- Q1
 WITH A AS (SELECT name, country, ROWID FROM Province),
-B AS (SELECT province AS 'name_id' , SUM(qty) AS 'cnt' FROM Purchases GROUP BY name_id),
+B AS (SELECT province AS 'name_id' , COUNT() AS 'cnt' FROM Purchases GROUP BY name_id),
 S AS (SELECT A.country, SUM(B.cnt) AS 'cnt' FROM A INNER JOIN B ON A.ROWID = B.name_id GROUP BY country)
 
-SELECT Country.name, S.cnt FROM S INNER JOIN Country ON Country.code = S.country
-ORDER  BY cnt DESC LIMIT 10;
+
+SELECT Country.name, S.cnt FROM S INNER JOIN Country ON Country.code = S.country WHERE cnt >= (SELECT MIN(cnt) FROM (SELECT S.cnt AS cnt FROM S INNER JOIN Country ON Country.code = S.country ORDER BY S.cnt DESC LIMIT 10)) ORDER  BY cnt DESC;
 
 
 -- Q2
-SELECT product, SUM(qty) AS 'cnt' FROM Purchases GROUP BY product;
-
+SELECT product, COUNT() AS 'cnt' FROM Purchases GROUP BY product;
 
 -- Q3
 WITH A AS (SELECT name, country, ROWID FROM Province),
@@ -264,8 +258,7 @@ B AS (SELECT province, SUM(qty) AS 'cnt' FROM Purchases WHERE product = 0 GROUP 
 C AS (SELECT country, name AS 'province' , max(cnt) AS 'abs',  CAST(max(cnt) AS float) /CAST(sum(cnt) AS foat) AS 'prop' FROM A INNER JOIN B ON A.ROWID = B.province GROUP BY country),
 D AS (SELECT code, name FROM Country)
 
-SELECT name, province, abs, prop FROM C INNER JOIN D ON D.code = C.country;
-
+SELECT name AS country, province, abs, prop FROM C INNER JOIN D ON D.code = C.country ORDER BY prop DESC;
 
 --Q4
 WITH B AS (SELECT province AS 'province_id', qty, count(qty) AS 'cnt'  FROM Purchases GROUP BY province, qty),
