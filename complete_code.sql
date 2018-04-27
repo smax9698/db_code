@@ -1,10 +1,11 @@
 -- PREPROCESS
 
 DROP TABLE IF EXISTS Purchases;
-DROP TABLE IF EXISTS LastPurchases;
+DROP TABLE IF EXISTS AllPurchases;
 DROP TABLE IF EXISTS TotPurByProd;
 DROP TABLE IF EXISTS LastTotPurByProd;
 DROP TABLE IF EXISTS Intermediate;
+
 
 CREATE TABLE Purchases (
 id INTEGER PRIMARY KEY,
@@ -15,8 +16,8 @@ qty INTEGER NOT NULL
 );
 --
 
--- E0 
-CREATE TABLE LastPurchases (
+-- E0
+CREATE TABLE AllPurchases (
 id INTEGER PRIMARY KEY,
 time INTEGER NOT NULL,
 province INTEGER NOT NULL,
@@ -35,25 +36,27 @@ CREATE TABLE Intermediate(
 product INTEGER NOT NULL,
 qty INTEGER NOT NULL
 );
+
 --
 
 -- P1
 INSERT INTO Purchases SELECT * FROM period1.Purchases;
 --
 
--- E1 
-DELETE FROM LastPurchases;
-INSERT INTO LastPurchases SELECT * FROM period1.Purchases;
+-- E1
+
+DELETE FROM Purchases WHERE id <= (SELECT MAX(id) FROM AllPurchases);
+INSERT INTO AllPurchases SELECT * FROM Purchases;
 
 DELETE FROM LastTotPurByProd;
-INSERT INTO LastTotPurByProd SELECT product, SUM(qty) AS 'cnt' FROM LastPurchases GROUP BY product;
+INSERT INTO LastTotPurByProd SELECT product, SUM(qty) AS 'cnt' FROM Purchases GROUP BY product;
 
 WITH Tot AS (SELECT product, SUM(qty) AS qty FROM (SELECT * FROM LastTotPurByProd UNION SELECT * FROM TotPurByProd) GROUP BY product)
 INSERT INTO Intermediate SELECT * FROM Tot;
 
 DELETE FROM TotPurByProd;
 INSERT INTO TotPurByProd SELECT * FROM Intermediate;
-DELETE FROM Intermediate; 
+DELETE FROM Intermediate;
 
 --
 
@@ -79,7 +82,7 @@ B AS (SELECT province, SUM(qty) AS 'cnt' FROM Purchases WHERE product = 0 GROUP 
 C AS (SELECT country, name AS 'province' , max(cnt) AS 'abs',  CAST(max(cnt) AS float) /CAST(sum(cnt) AS foat) AS 'prop' FROM A INNER JOIN B ON A.ROWID = B.province GROUP BY country),
 D AS (SELECT code, name FROM Country)
 
-SELECT name, province, abs, prop FROM C INNER JOIN D ON D.code = C.country;
+SELECT province, name, abs, prop FROM C INNER JOIN D ON D.code = C.country;
 
 
 --Q4
@@ -135,35 +138,34 @@ SELECT E.name AS 'province', F.name AS 'country', qty_last10, qty_1020 FROM (C J
 INSERT INTO Purchases SELECT * FROM period2.Purchases;
 --
 
--- E2 
-DELETE FROM LastPurchases;
-INSERT INTO LastPurchases SELECT * FROM period2.Purchases;
+-- E2
+DELETE FROM Purchases WHERE id <= (SELECT MAX(id) FROM AllPurchases);
+INSERT INTO AllPurchases SELECT * FROM Purchases;
 
 DELETE FROM LastTotPurByProd;
-INSERT INTO LastTotPurByProd SELECT product, SUM(qty) AS 'cnt' FROM LastPurchases GROUP BY product;
+INSERT INTO LastTotPurByProd SELECT product, SUM(qty) AS 'cnt' FROM Purchases GROUP BY product;
 
 WITH Tot AS (SELECT product, SUM(qty) AS qty FROM (SELECT * FROM LastTotPurByProd UNION SELECT * FROM TotPurByProd) GROUP BY product)
 INSERT INTO Intermediate SELECT * FROM Tot;
 
 DELETE FROM TotPurByProd;
 INSERT INTO TotPurByProd SELECT * FROM Intermediate;
-DELETE FROM Intermediate; 
+DELETE FROM Intermediate;
 --
 
 -- Q1-10
 
 -- Q1
 WITH A AS (SELECT name, country, ROWID FROM Province),
-B AS (SELECT province AS 'name_id' , SUM(qty) AS 'cnt' FROM Purchases GROUP BY name_id),
+B AS (SELECT province AS 'name_id' , COUNT() AS 'cnt' FROM Purchases GROUP BY name_id),
 S AS (SELECT A.country, SUM(B.cnt) AS 'cnt' FROM A INNER JOIN B ON A.ROWID = B.name_id GROUP BY country)
 
-SELECT Country.name, S.cnt FROM S INNER JOIN Country ON Country.code = S.country
-ORDER  BY cnt DESC LIMIT 10;
+
+SELECT Country.name, S.cnt FROM S INNER JOIN Country ON Country.code = S.country WHERE cnt >= (SELECT MIN(cnt) FROM (SELECT S.cnt AS cnt FROM S INNER JOIN Country ON Country.code = S.country ORDER BY S.cnt DESC LIMIT 10)) ORDER  BY cnt DESC;
 
 
 -- Q2
-SELECT product, SUM(qty) AS 'cnt' FROM Purchases GROUP BY product;
-
+SELECT product, COUNT() AS 'cnt' FROM Purchases GROUP BY product;
 
 -- Q3
 WITH A AS (SELECT name, country, ROWID FROM Province),
@@ -227,18 +229,18 @@ INSERT INTO Purchases SELECT * FROM period3.Purchases;
 --
 
 -- E3
-DELETE FROM LastPurchases;
-INSERT INTO LastPurchases SELECT * FROM period3.Purchases;
+DELETE FROM Purchases WHERE id IN (SELECT id FROM AllPurchases);
+INSERT INTO AllPurchases SELECT * FROM Purchases;
 
 DELETE FROM LastTotPurByProd;
-INSERT INTO LastTotPurByProd SELECT product, SUM(qty) AS 'cnt' FROM LastPurchases GROUP BY product;
+INSERT INTO LastTotPurByProd SELECT product, SUM(qty) AS 'cnt' FROM Purchases GROUP BY product;
 
 WITH Tot AS (SELECT product, SUM(qty) AS qty FROM (SELECT * FROM LastTotPurByProd UNION SELECT * FROM TotPurByProd) GROUP BY product)
 INSERT INTO Intermediate SELECT * FROM Tot;
 
 DELETE FROM TotPurByProd;
 INSERT INTO TotPurByProd SELECT * FROM Intermediate;
-DELETE FROM Intermediate; 
+DELETE FROM Intermediate;
 --
 
 -- Q1-10
