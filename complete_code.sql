@@ -77,7 +77,9 @@ SELECT product, COUNT() AS 'cnt' FROM Purchases GROUP BY product;
 -- Q3
 WITH A AS (SELECT name, country, ROWID FROM Province),
 B AS (SELECT province, COUNT() AS 'cnt' FROM Purchases WHERE product = 0 GROUP BY province),
-C AS (SELECT country, name AS 'province' , max(cnt) AS 'abs',  CAST(max(cnt) AS float) /CAST(sum(cnt) AS foat) AS 'prop' FROM A INNER JOIN B ON A.ROWID = B.province GROUP BY country),
+F AS (SELECT name, country, province, cnt AS cnt FROM A INNER JOIN B ON A.ROWID = B.province),
+E AS (SELECT country AS countryE, sum(cnt) AS totByCountry, max(cnt) AS maxByCountry FROM A INNER JOIN B ON A.ROWID = B.province GROUP BY country),
+C AS (SELECT country, name AS 'province' , cnt AS 'abs',  CAST(cnt AS float) / CAST(totByCountry AS foat) AS 'prop' FROM F INNER JOIN E ON E.countryE = F.country WHERE E.maxByCountry = F.cnt GROUP BY province),
 D AS (SELECT code, name FROM Country)
 
 SELECT name AS country, province, abs, prop FROM C INNER JOIN D ON D.code = C.country ORDER BY prop DESC;
@@ -166,7 +168,9 @@ SELECT product, COUNT() AS 'cnt' FROM Purchases GROUP BY product;
 -- Q3
 WITH A AS (SELECT name, country, ROWID FROM Province),
 B AS (SELECT province, COUNT() AS 'cnt' FROM Purchases WHERE product = 0 GROUP BY province),
-C AS (SELECT country, name AS 'province' , max(cnt) AS 'abs',  CAST(max(cnt) AS float) /CAST(sum(cnt) AS foat) AS 'prop' FROM A INNER JOIN B ON A.ROWID = B.province GROUP BY country),
+F AS (SELECT name, country, province, cnt AS cnt FROM A INNER JOIN B ON A.ROWID = B.province),
+E AS (SELECT country AS countryE, sum(cnt) AS totByCountry, max(cnt) AS maxByCountry FROM A INNER JOIN B ON A.ROWID = B.province GROUP BY country),
+C AS (SELECT country, name AS 'province' , cnt AS 'abs',  CAST(cnt AS float) / CAST(totByCountry AS foat) AS 'prop' FROM F INNER JOIN E ON E.countryE = F.country WHERE E.maxByCountry = F.cnt GROUP BY province),
 D AS (SELECT code, name FROM Country)
 
 SELECT name AS country, province, abs, prop FROM C INNER JOIN D ON D.code = C.country ORDER BY prop DESC;
@@ -255,7 +259,9 @@ SELECT product, COUNT() AS 'cnt' FROM Purchases GROUP BY product;
 -- Q3
 WITH A AS (SELECT name, country, ROWID FROM Province),
 B AS (SELECT province, COUNT() AS 'cnt' FROM Purchases WHERE product = 0 GROUP BY province),
-C AS (SELECT country, name AS 'province' , max(cnt) AS 'abs',  CAST(max(cnt) AS float) /CAST(sum(cnt) AS foat) AS 'prop' FROM A INNER JOIN B ON A.ROWID = B.province GROUP BY country),
+F AS (SELECT name, country, province, cnt AS cnt FROM A INNER JOIN B ON A.ROWID = B.province),
+E AS (SELECT country AS countryE, sum(cnt) AS totByCountry, max(cnt) AS maxByCountry FROM A INNER JOIN B ON A.ROWID = B.province GROUP BY country),
+C AS (SELECT country, name AS 'province' , cnt AS 'abs',  CAST(cnt AS float) / CAST(totByCountry AS foat) AS 'prop' FROM F INNER JOIN E ON E.countryE = F.country WHERE E.maxByCountry = F.cnt GROUP BY province),
 D AS (SELECT code, name FROM Country)
 
 SELECT name AS country, province, abs, prop FROM C INNER JOIN D ON D.code = C.country ORDER BY prop DESC;
