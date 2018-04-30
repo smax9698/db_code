@@ -109,6 +109,14 @@ CREATE TABLE UsefulDataPurchases(
 
 INSERT INTO UsefulDataPurchases SELECT * FROM Intermediate;
 
+DROP TABLE Purchases;
+CREATE TABLE Purchases (
+id INTEGER PRIMARY KEY,
+time INTEGER NOT NULL,
+province INTEGER NOT NULL,
+product INTEGER NOT NULL,
+qty INTEGER NOT NULL
+);
 --
 
 -- Q1-10
@@ -181,7 +189,7 @@ SELECT E.name AS 'province', F.name AS 'country', qty_last10, qty_1020 FROM (C J
 INSERT INTO Purchases SELECT * FROM period2.Purchases;
 --
 
--- E2
+-- E1
 DELETE FROM TimeMax;
 INSERT INTO TimeMax SELECT Max(time) FROM Purchases;
 
@@ -226,6 +234,16 @@ CREATE TABLE UsefulDataPurchases(
 );
 
 INSERT INTO UsefulDataPurchases SELECT * FROM Intermediate;
+
+DROP TABLE Purchases;
+CREATE TABLE Purchases (
+id INTEGER PRIMARY KEY,
+time INTEGER NOT NULL,
+province INTEGER NOT NULL,
+product INTEGER NOT NULL,
+qty INTEGER NOT NULL
+);
+
 --
 
 -- Q1-10
@@ -298,7 +316,7 @@ SELECT E.name AS 'province', F.name AS 'country', qty_last10, qty_1020 FROM (C J
 INSERT INTO Purchases SELECT * FROM period3.Purchases;
 --
 
--- E3
+-- E1
 DELETE FROM TimeMax;
 INSERT INTO TimeMax SELECT Max(time) FROM Purchases;
 
@@ -343,6 +361,16 @@ CREATE TABLE UsefulDataPurchases(
 );
 
 INSERT INTO UsefulDataPurchases SELECT * FROM Intermediate;
+
+DROP TABLE Purchases;
+CREATE TABLE Purchases (
+id INTEGER PRIMARY KEY,
+time INTEGER NOT NULL,
+province INTEGER NOT NULL,
+product INTEGER NOT NULL,
+qty INTEGER NOT NULL
+);
+
 --
 
 -- Q1-10
