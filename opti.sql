@@ -113,6 +113,7 @@ SELECT continent, qty, SUM(cnt) AS 'cnt' FROM D JOIN C ON C.country = D.country 
 
 -- Q5
 SELECT product, count() AS 'cnt' FROM AllPurchases WHERE (time > date((SELECT * FROM TimeMax), '-10 days')) GROUP BY product;
+SELECT product, SUM(purchases) AS 'cnt' FROM UsefulDataPurchases10 GROUP BY product;
 
 -- Q6
 SELECT time, count() AS 'cnt' FROM AllPurchases WHERE (time > date((SELECT * FROM TimeMax), '-10 days')) GROUP BY time;
