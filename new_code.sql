@@ -1,10 +1,6 @@
 -- PREPROCESS
 
 DROP TABLE IF EXISTS Purchases;
-DROP TABLE IF EXISTS AllPurchases;
-DROP TABLE IF EXISTS TotPurByProd;
-DROP TABLE IF EXISTS LastTotPurByProd;
-DROP TABLE IF EXISTS Intermediate;
 DROP TABLE IF EXISTS TimeMax;
 
 CREATE TABLE Purchases (
@@ -21,26 +17,6 @@ CREATE TABLE TimeMax(
   time INTEGER NOT NULL
 );
 
-CREATE TABLE AllPurchases (
-id INTEGER PRIMARY KEY,
-time INTEGER NOT NULL,
-province INTEGER NOT NULL,
-product INTEGER NOT NULL,
-qty INTEGER NOT NULL
-);
-CREATE TABLE TotPurByProd(
-product INTEGER NOT NULL,
-qty INTEGER NOT NULL
-);
-CREATE TABLE LastTotPurByProd(
-product INTEGER NOT NULL,
-qty INTEGER NOT NULL
-);
-CREATE TABLE Intermediate(
-product INTEGER NOT NULL,
-qty INTEGER NOT NULL
-);
-
 --
 
 -- P1
@@ -50,21 +26,6 @@ INSERT INTO Purchases SELECT * FROM period1.Purchases;
 -- E1
 DELETE FROM TimeMax;
 INSERT INTO TimeMax SELECT Max(time) FROM PURCHASES;
-
-
-DELETE FROM Purchases WHERE id <= (SELECT MAX(id) FROM AllPurchases);
-INSERT INTO AllPurchases SELECT * FROM Purchases;
-
-DELETE FROM LastTotPurByProd;
-INSERT INTO LastTotPurByProd SELECT product, SUM(qty) AS 'cnt' FROM Purchases GROUP BY product;
-
-WITH Tot AS (SELECT product, SUM(qty) AS qty FROM (SELECT * FROM LastTotPurByProd UNION SELECT * FROM TotPurByProd) GROUP BY product)
-INSERT INTO Intermediate SELECT * FROM Tot;
-
-DELETE FROM TotPurByProd;
-INSERT INTO TotPurByProd SELECT * FROM Intermediate;
-DELETE FROM Intermediate;
-
 --
 
 -- Q1-10
@@ -144,18 +105,8 @@ INSERT INTO Purchases SELECT * FROM period2.Purchases;
 --
 
 -- E2
-DELETE FROM Purchases WHERE id <= (SELECT MAX(id) FROM AllPurchases);
-INSERT INTO AllPurchases SELECT * FROM Purchases;
-
-DELETE FROM LastTotPurByProd;
-INSERT INTO LastTotPurByProd SELECT product, SUM(qty) AS 'cnt' FROM Purchases GROUP BY product;
-
-WITH Tot AS (SELECT product, SUM(qty) AS qty FROM (SELECT * FROM LastTotPurByProd UNION SELECT * FROM TotPurByProd) GROUP BY product)
-INSERT INTO Intermediate SELECT * FROM Tot;
-
-DELETE FROM TotPurByProd;
-INSERT INTO TotPurByProd SELECT * FROM Intermediate;
-DELETE FROM Intermediate;
+DELETE FROM TimeMax;
+INSERT INTO TimeMax SELECT Max(time) FROM PURCHASES;
 --
 
 -- Q1-10
@@ -235,18 +186,8 @@ INSERT INTO Purchases SELECT * FROM period3.Purchases;
 --
 
 -- E3
-DELETE FROM Purchases WHERE id IN (SELECT id FROM AllPurchases);
-INSERT INTO AllPurchases SELECT * FROM Purchases;
-
-DELETE FROM LastTotPurByProd;
-INSERT INTO LastTotPurByProd SELECT product, SUM(qty) AS 'cnt' FROM Purchases GROUP BY product;
-
-WITH Tot AS (SELECT product, SUM(qty) AS qty FROM (SELECT * FROM LastTotPurByProd UNION SELECT * FROM TotPurByProd) GROUP BY product)
-INSERT INTO Intermediate SELECT * FROM Tot;
-
-DELETE FROM TotPurByProd;
-INSERT INTO TotPurByProd SELECT * FROM Intermediate;
-DELETE FROM Intermediate;
+DELETE FROM TimeMax;
+INSERT INTO TimeMax SELECT Max(time) FROM PURCHASES;
 --
 
 -- Q1-10
